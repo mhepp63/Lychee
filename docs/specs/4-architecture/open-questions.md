@@ -6,8 +6,7 @@ Track unresolved high- and medium-impact questions here. Remove each row as soon
 
 | Question ID | Feature | Priority | Summary | Status | Opened | Updated |
 |-------------|---------|----------|---------|--------|--------|---------|
-
-_No active questions for this feature._
+_No active questions._
 
 ## Question Details
 
@@ -2997,3 +2996,76 @@ Lychee maps `embedding_id` back to Face records (which have person_id) to identi
 **Spec Impact:** Updated FR-033-03 to explicitly state that admin uploads bypass trust level checks. Updated Appendix Trust Level Decision Matrix. Updated task T-033-07 to include the admin short-circuit logic.
 
 **Resolved:** 2026-04-09
+
+---
+
+### ~~Q-034-01: TagAlbum Rows in Bulk Edit List~~ ✅ RESOLVED
+
+**Feature:** 034 – Bulk Album Edit  
+**Priority:** Medium  
+**Status:** Resolved  
+**Opened:** 2026-04-12  
+**Resolved:** 2026-04-14
+
+**Resolution:** **Option A** — Show only regular `Album` records (no TagAlbums). The list query joins only the `albums` table. A note on the page explains TagAlbums are excluded.
+
+**Spec Impact:** FR-034-01 clarified; plan and tasks updated to confirm only `albums` table is queried.
+
+---
+
+### ~~Q-034-02: Depth Indicator Computation Strategy~~ ✅ RESOLVED
+
+**Feature:** 034 – Bulk Album Edit  
+**Priority:** Medium  
+**Status:** Resolved  
+**Opened:** 2026-04-12  
+**Resolved:** 2026-04-14
+
+**Resolution:** **Option B** — Compute depth client-side, **linearly**, by scanning `_lft` values in descending order. The server returns `_lft` in each `BulkAlbumResource` row (already included). The frontend performs a single O(n) pass over the sorted-by-`_lft` result set: maintain a stack of ancestor `_rgt` values; pop the stack whenever the current row's `_lft` exceeds the stack top's `_rgt`; depth = stack length. This avoids an extra server-side `withDepth()` join and keeps computation in the client where the full page of records is already available.
+
+**Spec Impact:** `BulkAlbumResource` includes `_lft` and `_rgt` (not `depth`). FR-034-14 updated to specify client-side linear depth computation. T-034-03 and T-034-17 updated accordingly.
+
+---
+
+### ~~Q-034-03: Confirmation for Bulk Delete~~ ✅ RESOLVED
+
+**Feature:** 034 – Bulk Album Edit  
+**Priority:** High  
+**Status:** Resolved  
+**Opened:** 2026-04-12  
+**Resolved:** 2026-04-14
+
+**Resolution:** **Option B** — Bulk delete shows a minimal confirmation modal: a dialog displaying the count of selected albums and requiring the admin to click a second **"Confirm Delete"** button. No text input required. This is consistent with the spirit of the no-confirmation rule (field edits apply immediately) while protecting against accidental mass-delete.
+
+**Spec Impact:** FR-034-10 updated to require confirmation modal for delete. UI-034-05 (delete confirmation dialog state) added. T-034-20 updated.
+
+---
+
+### ~~Q-034-04: Scope of "Select All Matching"~~ ✅ RESOLVED
+
+**Feature:** 034 – Bulk Album Edit  
+**Priority:** Low  
+**Status:** Resolved  
+**Opened:** 2026-04-12  
+**Resolved:** 2026-04-14
+
+**Resolution:** **Option A** — Return all albums in the gallery regardless of owner. Admin page; admin has authority over all albums.
+
+**Spec Impact:** FR-034-12 confirmed: no owner filter applied on `GET /BulkAlbumEdit::ids`.
+
+---
+
+### ~~Q-035-01: Behaviour of GET /Zip (no chunk param) when chunked mode is ON~~ ✅ RESOLVED
+
+**Feature:** 035 – Chunked Archive Download
+**Priority:** Medium
+**Status:** Resolved
+**Opened:** 2026-04-12
+
+**Context:** When `download_archive_chunked` is enabled, a client that calls `GET /Zip` without a `chunk` parameter may be a legacy client or an incorrect integration. We need a defined contract for this case.
+
+**Resolution:** **Option A** — Treat missing `chunk` as a regular single-archive download, regardless of the chunked-mode setting. This is backward-compatible: legacy frontends and direct URL downloads work without modification.
+
+**Spec Impact:** Encoded in FR-035-05 and FR-035-07.
+
+**Resolved:** 2026-04-12
